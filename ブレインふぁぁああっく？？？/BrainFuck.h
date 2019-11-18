@@ -6,6 +6,7 @@
 
 //https://ja.wikipedia.org/wiki/Brainfuck
 
+
 template<class T>
 class BrainFuck {
 	typedef std::vector<T> MemoryType;
@@ -18,9 +19,14 @@ public:
 		Code = Code_;
 		return true;
 	}
-
-	template <class IF,class OF>
-	bool Interpret(IF Input, OF Output) {
+	bool Interpret() {
+		auto I = [](auto& o) {std::cin >> o;};
+		auto O = [](auto& o) {std::cout << o; };
+		auto E = [](BrainFuck& o) {std::cerr << "out of code :\' " << o.GetCode()[o.CodeIndex()]<<"\' at "<<o.CodeIndex() << std::endl; };
+		return Interpret(O, I, E);
+	}
+	template <class OF, class IF, class EF>
+	bool Interpret(OF Output, IF Input, EF Error) {
 		for (PC; PC < Code.size(); PC++) {
 			switch(Code[PC]) {
 				case '>':
@@ -47,12 +53,13 @@ public:
 				case ']':
 					if (Memory[Index] != 0) { DoCodeBackward(); }
 					break;
-				case 'b'://break interpret.
+				case 'b'://break interpret. //not standard.
 					return true;
 				case ' ':
 					break;
 				default:
-					return false;
+					Error(*this);
+					break;
 			}
 		}
 		return true;
